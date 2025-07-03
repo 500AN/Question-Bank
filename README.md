@@ -30,6 +30,10 @@ CLIENT_URL=https://your-vercel-app.vercel.app
    cd mcq-test-app
    ```
 
+
+
+   
+
 2. **Install server dependencies**
    ```bash
    cd server
