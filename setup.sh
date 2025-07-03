@@ -16,7 +16,7 @@ npm install
 
 # Install server dependencies
 echo "🔧 Installing server dependencies..."
-cd server && npm install && cd ..
+cd server; npm install && cd ..
 
 # Install client dependencies
 echo "⚛️ Installing client dependencies..."
@@ -24,7 +24,7 @@ cd client; npm install && cd ..
 
 # Build client for production
 echo "🏗️ Building client for production..."
-cd client && npm run build && cd ..
+cd client; npm run build && cd ..
 
 echo "✅ Setup complete!"
 echo ""

@@ -83,7 +83,7 @@ npm run build
 ### Production Build Test:
 ```bash
 # Build client
-cd client && npm run build && cd ..
+cd client; npm run build && cd ..
 
 # Start production server
 cd server && NODE_ENV=production npm start

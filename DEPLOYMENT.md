@@ -115,7 +115,7 @@ const API_BASE_URL = process.env.NODE_ENV === 'production'
 npm run build
 
 # Test production build locally
-cd client && npm run build && serve -s build
+cd client; npm run build && serve -s build
 
 # Check server locally
 cd server && npm start
