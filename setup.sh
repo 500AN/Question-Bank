@@ -20,7 +20,7 @@ cd server && npm install && cd ..
 
 # Install client dependencies
 echo "⚛️ Installing client dependencies..."
-cd client && npm install && cd ..
+cd client; npm install && cd ..
 
 # Build client for production
 echo "🏗️ Building client for production..."
