@@ -24,22 +24,37 @@ const app = express();
 // Connect to database
 connectDB();
 
-// Middleware
-app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
-  credentials: true
-}));
+// CORS configuration for split deployment
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = [
+      process.env.CLIENT_URL,
+      process.env.CORS_ORIGIN,
+      'http://localhost:3000', // For local development
+      'https://localhost:3000'
+    ].filter(Boolean);
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+app.use(cors(corsOptions));
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // Serve static files for uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-// Serve static files from React build in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../client/build')));
-}
 
 // Request logging middleware
 app.use((req, res, next) => {
@@ -82,16 +97,12 @@ app.get('/', (req, res) => {
   });
 });
 
-// 404 handler - Serve React app for non-API routes in production
+// 404 handler for API-only server
 app.use('*', (req, res) => {
-  if (process.env.NODE_ENV === 'production' && !req.originalUrl.startsWith('/api')) {
-    res.sendFile(path.join(__dirname, '../client/build/index.html'));
-  } else {
-    res.status(404).json({
-      success: false,
-      message: `Route ${req.originalUrl} not found`
-    });
-  }
+  res.status(404).json({
+    success: false,
+    message: `Route ${req.originalUrl} not found`
+  });
 });
 
 // Error handling middleware (must be last)

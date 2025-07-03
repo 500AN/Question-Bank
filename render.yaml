@@ -1,0 +1,14 @@
+# Render Deployment Configuration
+# This file is used by Render to deploy the Node.js server
+
+# Build Command
+npm install
+
+# Start Command  
+npm start
+
+# Environment
+NODE_ENV=production
+
+# Health Check Endpoint
+/api/health
