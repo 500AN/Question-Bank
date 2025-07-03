@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
@@ -20,13 +20,7 @@ const TestAttendance = () => {
   const [attendanceData, setAttendanceData] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (user && (user.role === 'teacher' || user.role === 'admin')) {
-      fetchAttendanceData();
-    }
-  }, [user, testId]);
-
-  const fetchAttendanceData = async () => {
+  const fetchAttendanceData = useCallback(async () => {
     try {
       setLoading(true);
       console.log('TestAttendance - Fetching data for testId:', testId);
@@ -42,7 +36,13 @@ const TestAttendance = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [testId, user, navigate]);
+
+  useEffect(() => {
+    if (user && (user.role === 'teacher' || user.role === 'admin')) {
+      fetchAttendanceData();
+    }
+  }, [user, fetchAttendanceData]);
 
   const exportAttendance = async () => {
     try {

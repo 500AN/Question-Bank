@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
@@ -21,31 +21,24 @@ const ImprovementAnalysis = () => {
   const [analysisData, setAnalysisData] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (user && user.role === 'student') {
-      fetchImprovementAnalysis();
-    }
-  }, [user, testId]);
-
-  const fetchImprovementAnalysis = async () => {
+  const fetchImprovementAnalysis = useCallback(async () => {
     try {
       setLoading(true);
       const response = await api.getImprovementAnalysis(testId);
       setAnalysisData(response.data);
     } catch (error) {
       console.error('Failed to fetch improvement analysis:', error);
-      if (error.response?.status === 403) {
-        toast.error('Improvement analysis is not enabled for this test');
-      } else if (error.response?.status === 404) {
-        toast.error('No completed attempts found for this test');
-      } else {
-        toast.error('Failed to fetch improvement analysis');
-      }
-      navigate('/results');
+      toast.error('Failed to load improvement analysis');
     } finally {
       setLoading(false);
     }
-  };
+  }, [testId]);
+
+  useEffect(() => {
+    if (user && user.role === 'student') {
+      fetchImprovementAnalysis();
+    }
+  }, [user, fetchImprovementAnalysis]);
 
   const getChangeIcon = (change) => {
     if (change > 0) return <ArrowTrendingUpIcon className="h-4 w-4 text-green-500" />;

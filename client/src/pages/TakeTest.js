@@ -32,7 +32,7 @@ const TakeTest = () => {
   // Fetch attempt data
   useEffect(() => {
     fetchAttempt();
-  }, [attemptId]);
+  }, [fetchAttempt]);
 
   // Timer effect
   useEffect(() => {
@@ -49,7 +49,7 @@ const TakeTest = () => {
 
       return () => clearInterval(timer);
     }
-  }, [timeRemaining]);
+  }, [timeRemaining, handleAutoSubmit]);
 
   // Auto-save answers
   useEffect(() => {
@@ -60,7 +60,7 @@ const TakeTest = () => {
     }, 30000); // Save every 30 seconds
 
     return () => clearInterval(saveTimer);
-  }, [answers]);
+  }, [answers, saveAnswers]);
 
   // Prevent page refresh/close
   useEffect(() => {
@@ -73,7 +73,7 @@ const TakeTest = () => {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, []);
 
-  const fetchAttempt = async () => {
+  const fetchAttempt = useCallback(async () => {
     try {
       const response = await api.getAttempt(attemptId);
       const attemptData = response.data.data;
@@ -117,15 +117,15 @@ const TakeTest = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [attemptId, navigate, handleAutoSubmit]);
 
-  const saveAnswers = async () => {
+  const saveAnswers = useCallback(async () => {
     try {
       await api.saveAnswers(attemptId, answers);
     } catch (error) {
       console.error('Failed to save answers:', error);
     }
-  };
+  }, [attemptId, answers]);
 
   const handleAnswerChange = async (questionId, answerIndex) => {
     setAnswers(prev => ({

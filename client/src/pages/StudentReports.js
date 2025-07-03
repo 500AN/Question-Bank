@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import toast from 'react-hot-toast';
@@ -23,13 +23,7 @@ const StudentReports = () => {
   });
   const [summary, setSummary] = useState({});
 
-  useEffect(() => {
-    if (user && (user.role === 'teacher' || user.role === 'admin')) {
-      fetchStudentReport();
-    }
-  }, [user, filters]);
-
-  const fetchStudentReport = async () => {
+  const fetchStudentReport = useCallback(async () => {
     try {
       setLoading(true);
       const response = await api.getStudentReport(filters);
@@ -41,7 +35,13 @@ const StudentReports = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
+
+  useEffect(() => {
+    if (user && (user.role === 'teacher' || user.role === 'admin')) {
+      fetchStudentReport();
+    }
+  }, [user, fetchStudentReport]);
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({

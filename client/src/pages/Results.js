@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
@@ -22,11 +22,7 @@ const Results = () => {
   const [showReview, setShowReview] = useState(false);
   const [testInfo, setTestInfo] = useState(null);
 
-  useEffect(() => {
-    fetchResults();
-  }, []);
-
-  const fetchResults = async () => {
+  const fetchResults = useCallback(async () => {
     try {
       let response;
       if (testId) {
@@ -54,7 +50,11 @@ const Results = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [testId, user.role]);
+
+  useEffect(() => {
+    fetchResults();
+  }, [fetchResults]);
 
   const handleViewReview = async (attemptId) => {
     try {
