@@ -24,7 +24,7 @@ const app = express();
 // Connect to database
 connectDB();
 
-// CORS configuration for split deployment
+// CORS configuration for Vercel deployment
 const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
@@ -33,27 +33,27 @@ const corsOptions = {
     const allowedOrigins = [
       process.env.CLIENT_URL,
       process.env.CORS_ORIGIN,
-      'https://question-bank-lilac.vercel.app', // Original Vercel deployment
-      'https://question-bank-bt1cg36hc-hhh300703gmailcoms-projects.vercel.app', // New Vercel deployment
       'http://localhost:3000', // For local development
       'https://localhost:3000'
     ].filter(Boolean);
 
-    // Also allow any vercel.app subdomain for your project
-    const isVercelDomain = origin && (
-      origin.includes('question-bank') &&
-      origin.includes('vercel.app')
-    );
+    // Allow any vercel.app domain for your project
+    const isVercelDomain = origin && origin.includes('vercel.app');
+
+    // Allow same-origin requests (when client and server are on same domain)
+    const isSameOrigin = !origin || origin === process.env.VERCEL_URL;
 
     console.log('🔍 CORS Check:', {
       origin,
       allowedOrigins,
       isVercelDomain,
+      isSameOrigin,
       CLIENT_URL: process.env.CLIENT_URL,
-      CORS_ORIGIN: process.env.CORS_ORIGIN
+      CORS_ORIGIN: process.env.CORS_ORIGIN,
+      VERCEL_URL: process.env.VERCEL_URL
     });
 
-    if (allowedOrigins.includes(origin) || isVercelDomain) {
+    if (allowedOrigins.includes(origin) || isVercelDomain || isSameOrigin) {
       console.log('✅ CORS: Origin allowed:', origin);
       callback(null, true);
     } else {

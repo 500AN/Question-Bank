@@ -1,8 +1,10 @@
 import axios from 'axios';
 
+// For Vercel deployment, use relative paths to avoid CORS issues
+// When both client and server are deployed on the same domain
 const API_BASE_URL = process.env.REACT_APP_API_URL ||
   (process.env.NODE_ENV === 'production'
-    ? 'https://mcq-test-server.onrender.com/api'  // Your actual Render URL
+    ? '/api'  // Use relative path for same-domain deployment
     : 'http://localhost:5000/api');
 
 // Create axios instance
