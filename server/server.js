@@ -39,7 +39,7 @@ const corsOptions = {
 
     // Allow any vercel.app domain for your project
     const isVercelDomain = origin && origin.includes('vercel.app');
-
+    
     // Allow same-origin requests (when client and server are on same domain)
     const isSameOrigin = !origin || origin === process.env.VERCEL_URL;
 
@@ -116,45 +116,67 @@ app.get('/', (req, res) => {
   });
 });
 
-// 404 handler for API-only server
-app.use('*', (req, res) => {
+// 404 handler for API routes
+app.use('/api/*', (req, res) => {
   res.status(404).json({
     success: false,
-    message: `Route ${req.originalUrl} not found`
+    message: `API route ${req.originalUrl} not found`
   });
+});
+
+// Catch-all handler for non-API routes (let client handle routing)
+app.use('*', (req, res) => {
+  // In production, this should serve the client app
+  if (process.env.NODE_ENV === 'production') {
+    res.status(404).json({
+      success: false,
+      message: 'Route not found - this should be handled by client routing'
+    });
+  } else {
+    res.status(404).json({
+      success: false,
+      message: `Route ${req.originalUrl} not found`
+    });
+  }
 });
 
 // Error handling middleware (must be last)
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5000;
+// For Vercel deployment, export the app directly
+if (process.env.VERCEL) {
+  module.exports = app;
+} else {
+  // For local development, start the server
+  const PORT = process.env.PORT || 5000;
 
-const server = app.listen(PORT, () => {
-  console.log(`🚀 Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
-  console.log(`📍 Health check: http://localhost:${PORT}/health`);
-  console.log(`📍 API Base URL: http://localhost:${PORT}/api`);
-});
+  const server = app.listen(PORT, () => {
+    console.log(`🚀 Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+    console.log(`📍 Health check: http://localhost:${PORT}/health`);
+    console.log(`📍 API Base URL: http://localhost:${PORT}/api`);
+  });
 
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (err) => {
-  console.error('❌ Unhandled Promise Rejection:', err.message);
-  console.error('Shutting down the server due to unhandled promise rejection');
-  server.close(() => {
+  // Handle unhandled promise rejections
+  process.on('unhandledRejection', (err) => {
+    console.error('❌ Unhandled Promise Rejection:', err.message);
+    console.error('Shutting down the server due to unhandled promise rejection');
+    server.close(() => {
+      process.exit(1);
+    });
+  });
+
+  // Handle uncaught exceptions
+  process.on('uncaughtException', (err) => {
+    console.error('❌ Uncaught Exception:', err.message);
+    console.error('Shutting down the server due to uncaught exception');
     process.exit(1);
   });
-});
 
-// Handle uncaught exceptions
-process.on('uncaughtException', (err) => {
-  console.error('❌ Uncaught Exception:', err.message);
-  console.error('Shutting down the server due to uncaught exception');
-  process.exit(1);
-});
-
-// Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('👋 SIGTERM received. Shutting down gracefully');
-  server.close(() => {
-    console.log('💤 Process terminated');
+  // Graceful shutdown
+  process.on('SIGTERM', () => {
+    console.log('👋 SIGTERM received. Shutting down gracefully');
+    server.close(() => {
+      console.log('💤 Process terminated');
+    });
   });
-});
+}
