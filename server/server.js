@@ -33,19 +33,27 @@ const corsOptions = {
     const allowedOrigins = [
       process.env.CLIENT_URL,
       process.env.CORS_ORIGIN,
-      'https://question-bank-lilac.vercel.app', // Your Vercel deployment
+      'https://question-bank-lilac.vercel.app', // Original Vercel deployment
+      'https://question-bank-bt1cg36hc-hhh300703gmailcoms-projects.vercel.app', // New Vercel deployment
       'http://localhost:3000', // For local development
       'https://localhost:3000'
     ].filter(Boolean);
 
+    // Also allow any vercel.app subdomain for your project
+    const isVercelDomain = origin && (
+      origin.includes('question-bank') &&
+      origin.includes('vercel.app')
+    );
+
     console.log('🔍 CORS Check:', {
       origin,
       allowedOrigins,
+      isVercelDomain,
       CLIENT_URL: process.env.CLIENT_URL,
       CORS_ORIGIN: process.env.CORS_ORIGIN
     });
 
-    if (allowedOrigins.includes(origin)) {
+    if (allowedOrigins.includes(origin) || isVercelDomain) {
       console.log('✅ CORS: Origin allowed:', origin);
       callback(null, true);
     } else {
