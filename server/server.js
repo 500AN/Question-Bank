@@ -29,23 +29,34 @@ const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    
+
     const allowedOrigins = [
       process.env.CLIENT_URL,
       process.env.CORS_ORIGIN,
+      'https://question-bank-lilac.vercel.app', // Your Vercel deployment
       'http://localhost:3000', // For local development
       'https://localhost:3000'
     ].filter(Boolean);
-    
+
+    console.log('🔍 CORS Check:', {
+      origin,
+      allowedOrigins,
+      CLIENT_URL: process.env.CLIENT_URL,
+      CORS_ORIGIN: process.env.CORS_ORIGIN
+    });
+
     if (allowedOrigins.includes(origin)) {
+      console.log('✅ CORS: Origin allowed:', origin);
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      console.log('❌ CORS: Origin blocked:', origin);
+      callback(new Error(`Not allowed by CORS. Origin: ${origin}`));
     }
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  optionsSuccessStatus: 200 // Some legacy browsers choke on 204
 };
 
 app.use(cors(corsOptions));

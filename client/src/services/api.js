@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL ||
   (process.env.NODE_ENV === 'production'
-    ? 'https://your-render-app-name.onrender.com/api'  // Replace with your Render URL
+    ? 'https://mcq-test-server.onrender.com/api'  // Your actual Render URL
     : 'http://localhost:5000/api');
 
 // Create axios instance
